@@ -1,7 +1,7 @@
 ---
 name: lark-doc
 version: 1.0.0
-description: "飞书云文档：创建和编辑飞书文档。从 Markdown 创建文档、获取文档内容、更新文档（追加/覆盖/替换/插入/删除）、上传和下载文档中的图片和文件、搜索云空间文档。当用户需要创建或编辑飞书文档、读取文档内容、在文档中插入图片、搜索云空间文档时使用；如果用户是想按名称或关键词先定位电子表格、报表等云空间对象，也优先使用本 skill 的 docs +search 做资源发现。"
+description: "飞书云文档：创建和编辑飞书文档。默认使用 DocxXML 格式（也支持 Markdown）。创建文档、获取文档内容（支持 simple/with-ids/full 三种导出详细度）、更新文档（六种指令：str_replace/str_delete/block_insert/block_replace/block_delete/create）、上传和下载文档中的图片和文件、搜索云空间文档。当用户需要创建或编辑飞书文档、读取文档内容、在文档中插入图片、搜索云空间文档时使用；如果用户是想按名称或关键词先定位电子表格、报表等云空间对象，也优先使用本 skill 的 docs +search 做资源发现。"
 metadata:
   requires:
     bins: ["lark-cli"]
@@ -100,15 +100,14 @@ Drive Folder (云空间文件夹)
 ## 重要说明：画板编辑
 > **⚠️ lark-doc skill 不能直接编辑已有画板内容，但 `docs +update` 可以新建空白画板**
 ### 场景 1：已通过 docs +fetch 获取到文档内容和画板 token
-如果用户已经通过 `docs +fetch` 拉取了文档内容，并且文档中已有画板（返回的 markdown 中包含 `<whiteboard token="xxx"/>` 标签），请引导用户：
+如果用户已经通过 `docs +fetch` 拉取了文档内容，并且文档中已有画板（返回的内容中包含 `<whiteboard token="xxx"/>` 标签），请引导用户：
 1. 记录画板的 token
 2. 查看 [`../lark-whiteboard/SKILL.md`](../lark-whiteboard/SKILL.md) 了解如何编辑画板内容
 ### 场景 2：刚创建画板，需要编辑
 如果用户刚通过 `docs +update` 创建了空白画板，需要编辑时：
 **步骤 1：按空白画板语法创建**
-- 在 `--markdown` 中直接传 `<whiteboard type="blank"></whiteboard>`
-- 需要多个空白画板时，在同一个 `--markdown` 里重复多个 whiteboard 标签
-  **步骤 2：从响应中记录 token**
+- 直接传 `<whiteboard type="blank"></whiteboard>`，多个画板需要写多个标签
+**步骤 2：从响应中记录 token**
 - `docs +update` 成功后，读取响应字段 `data.board_tokens`
 - `data.board_tokens` 是新建画板的 token 列表，后续编辑直接使用这里的 token
   **步骤 3：引导编辑**
@@ -133,10 +132,9 @@ Shortcut 是对常用操作的高级封装（`lark-cli docs +<verb> [flags]`）�
 | Shortcut | 说明 |
 |----------|------|
 | [`+search`](references/lark-doc-search.md) | Search Lark docs, Wiki, and spreadsheet files (Search v2: doc_wiki/search) |
-| [`+create`](references/lark-doc-create.md) | Create a Lark document |
-| [`+fetch`](references/lark-doc-fetch.md) | Fetch Lark document content |
-| [`+update`](references/lark-doc-update.md) | Update a Lark document |
+| [`+create`](references/lark-doc-create.md) | Create a Lark document (XML / Markdown) |
+| [`+fetch`](references/lark-doc-fetch.md) | Fetch Lark document content (XML / Markdown / Text) |
+| [`+update`](references/lark-doc-update.md) | Update a Lark document (str_replace / block_insert / block_replace / ...) |
 | [`+media-insert`](references/lark-doc-media-insert.md) | Insert a local image or file at the end of a Lark document (4-step orchestration + auto-rollback) |
 | [`+media-download`](references/lark-doc-media-download.md) | Download document media or whiteboard thumbnail (auto-detects extension) |
 | [`+whiteboard-update`](references/lark-doc-whiteboard-update.md) | Update an existing whiteboard in lark document with whiteboard dsl. Such DSL input from stdin. refer to lark-whiteboard skill for more details. |
-
