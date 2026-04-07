@@ -1,6 +1,13 @@
 # DSL Schema
 
-> Frame 的布局系统基于 Yoga 引擎，行为基本等同于 CSS Flexbox。`layout: 'horizontal'` = `flex-direction: row`，`fill-container` = `flex: 1`，`fit-content` = `width: auto`，`gap` / `padding` / `alignItems` / `justifyContent` 语义相同。枚举值用 `'start'`/`'end'` 而非 `'flex-start'`/`'flex-end'`。**注意差异**：`alignItems` 默认值为 `'start'`（CSS 默认 `stretch`），需要等高卡片时必须显式写 `alignItems: 'stretch'`。
+> 本文件只说明 **DSL 里能写什么**：节点类型、字段、枚举值、硬约束。布局策略、组合方法、Dagre/Flex 心智模型统一放在 `references/layout.md`。  
+> `?` 表示该字段在 schema 层是 optional；若需要稳定产出，再参考对应 scene 或 layout 文件中的最佳实践。
+
+**📝 布局引擎核心法则**：
+- **基本行为与 Flexbox 等同**：Frame 布局基于 Yoga 引擎。`layout: 'horizontal'` = `flex-direction: row`，`fill-container` = `flex: 1`，`fit-content` = `width: auto`，`gap` / `padding` / `alignItems` / `justifyContent` 语义相同。
+- **枚举值无 flex- 前缀**：一律使用 `'start'` / `'end'` 而非原生 CSS 的 `'flex-start'` / `'flex-end'`。
+- **默认对齐的差异**：`alignItems` 的默认值是 `'start'`（原生 CSS 默认是 `stretch`）。所以同排卡片需要等高时，**必须显式声名** `alignItems: 'stretch'`。
+- **Dagre 引擎的特殊性**：`layout: 'dagre'` 作为专属拓扑连线引擎，自身不支持 `fill-container` 宽高，对其父容器而言，它是一个自适应（打包裹）的黑盒。
 
 ## WBDocument
 
@@ -24,12 +31,21 @@ interface WBDocument {
   x?: number; y?: number;       // Flex 子节点不需要 x/y
   width: WBSizeValue;
   height: WBSizeValue;
-
-  layout: 'horizontal' | 'vertical' | 'none';  // 必须写，不写默认绝对定位
+  layout: 'horizontal' | 'vertical' | 'none' | 'dagre';  // 布局模式
   gap: number;                    // 必须显式写（不写节点会粘连，容易出 bug）
   padding: number | [number, number] | [number, number, number, number]; // 必须显式写（不写内容贴边）
   justifyContent?: 'start' | 'center' | 'end' | 'space-between' | 'space-around';
   alignItems?: 'start' | 'center' | 'end' | 'stretch';
+  layoutOptions?: {                 // 仅当 layout 为 'dagre' 时生效
+    rankdir?: 'TB' | 'BT' | 'LR' | 'RL';
+    nodesep?: number;
+    edgesep?: number;
+    ranksep?: number;
+    edges?: Array<[string, string] | [string, string, string]>; // [fromId, toId, label?] 引擎自动排版子节点并生成贝塞尔曲线连线
+    isCluster?: boolean;            // 透明子图。为 true 时子节点参与父级 Dagre 拓扑运算，连线可穿越边界
+    clusterTitle?: string;          // 子图悬浮标题（自动吸附左上角）
+    clusterTitleColor?: string;     // 标题颜色 (HEX格式，如 "#8B5CF6")
+  };
   fillColor?: string;
   borderColor?: string;
   borderWidth?: number;
@@ -39,7 +55,31 @@ interface WBDocument {
 }
 ```
 
-> **虚拟 frame 陷阱**：无 title、无 fillColor、无 borderColor、无 borderWidth 的 frame 在编译时会被跳过（子节点直接提升到父级）。如果给这种虚拟 frame 设了 id 并用 connector 连接它，编译后 frame 消失，connector 引用会失效。解决办法：给 frame 加上 `borderWidth: 0` 或任意可见属性，阻止它被优化掉。
+**Dagre 嵌套排版规则**：
+
+1. **不透明节点（Opaque Node）**：Dagre 内的子容器，无论 `layout` 是 `flex`、`absolute` 还是 `dagre`，只要未声明 `isCluster: true`，对外层 Dagre 就是具有确定宽高的不透明原子节点。外层连线无法寻址其内部子节点。
+2. **连线兜底重定向（Edge Redirect Fallback）**：当 `edges` 引用了某不透明节点内部的子节点 ID 时，引擎自动将该连线端点重定向至其最近的不透明祖先节点。不报错，不产生悬空连线。
+3. **透明子图（Compound Cluster）**：子容器同时声明 `layout: "dagre"` 与 `layoutOptions: { isCluster: true }` 时，成为外层 Dagre 的复合子图。其内部子节点直接参与外层拓扑运算，连线可穿越子图边界。子图自身不执行独立排版，尺寸由外层 Dagre 根据内部节点包围盒自动撑开。
+
+**isCluster 最小用法**：
+```json
+{
+  "type": "frame", "id": "cluster_a",
+  "layout": "dagre", "layoutOptions": { "isCluster": true },
+  "fillColor": "#F0FDF4", "borderColor": "#86EFAC", "borderWidth": 2, "borderDash": "dashed", "borderRadius": 16,
+  "children": [
+    { "type": "text", "text": "区域标题", "fontSize": 11, "textColor": "#15803D" },
+    { "type": "rect", "id": "node_inside", "width": 120, "height": 40, "text": "内部节点" }
+  ]
+}
+```
+> 注意：`edges` 必须写在**最外层的根 Dagre** 的 `layoutOptions` 中，不要写在 cluster 内部。
+**其他约束**：
+- `layout / gap / padding` 在 schema 层是 optional，但实际生成时推荐显式写出，避免依赖默认行为。
+- `layoutOptions` 仅在 `layout: 'dagre'` 时生效。
+- `children` 里不能出现 `connector`。
+
+> **虚拟 frame 陷阱**：没有 `fillColor`、`borderColor`、`borderWidth` 的 frame 在编译时可能被当作纯布局容器跳过（子节点直接提升到父级）。如果给这种 frame 设了 `id` 并让外部 connector 连接它，编译后 frame 消失，connector 引用会失效。需要保留这个 frame 时，请给它加上不会被优化掉的外观属性。
 
 ### 基础图形
 
@@ -130,10 +170,9 @@ interface WBDocument {
     lineStyle?: 'solid' | 'dashed' | 'dotted';
     startArrow?: 'none' | 'arrow' | 'triangle' | 'circle' | 'diamond';
     endArrow?:   'none' | 'arrow' | 'triangle' | 'circle' | 'diamond';
-    label?: string;                  // 连线中间的标签文字
-    waypoints?: { x: number; y: number }[];    // polyline 途经点
-    label?: string;                            // 连线中间的标签文字
-    labelPosition?: number;                    // 标签位置，0-1，默认 0.5（中点）
+    waypoints?: { x: number; y: number }[];  // polyline 途经点
+    label?: string;                          // 连线中间的标签文字
+    labelPosition?: number;                  // 标签位置，0-1，默认 0.5（中点）
   };
 }
 ```
@@ -209,14 +248,14 @@ SVG 通过 `image/svg+xml` Blob 加载到画布，**不在 HTML DOM 中**，因�
   x?: number; y?: number;
   width?: WBSizeValue;          // 默认 48
   height?: WBSizeValue;         // 默认 48，保持正方形
-  name: string;                 // 图标名称，从 npx -y @larksuite/whiteboard-cli@^0.1.0 --icons 输出中选取
+  name: string;                 // 图标名称，从 npx -y @larksuite/whiteboard-cli@^0.2.0 --icons 输出中选取
   color?: string;               // 可选颜色覆盖，hex 格式如 '#FF6600'
 }
 ```
 
 **获取可用图标**：规划好内容和布局后，运行以下命令查看所有可用图标名，从中选取：
 ```bash
-npx -y @larksuite/whiteboard-cli@^0.1.0 --icons
+npx -y @larksuite/whiteboard-cli@^0.2.0 --icons
 ```
 
 用法：
@@ -283,12 +322,12 @@ interface WBTextRun {
 
 ## 尺寸值 WBSizeValue
 
-| 值 | 含义 | 注意 |
-|----|------|------|
-| `number` | 固定像素 | 任何场景 |
-| `'fit-content'` | 由内容决定大小 | 父级需要 Flex 布局 |
-| `'fit-content(N)'` | 同上，无内容时 fallback N | 同上 |
-| `'fill-container'` | 填满父级剩余空间 | 父级需要 Flex 布局，且祖先链有固定宽度 |
-| `'fill-container(N)'` | 同上，无 Flex 时 fallback N | — |
+| 值                    | 含义                        | 注意                                   |
+| --------------------- | --------------------------- | -------------------------------------- |
+| `number`              | 固定像素                    | 任何场景                               |
+| `'fit-content'`       | 由内容决定大小              | 父级需要 Flex 布局                     |
+| `'fit-content(N)'`    | 同上，无内容时 fallback N   | 同上                                   |
+| `'fill-container'`    | 填满父级剩余空间            | 父级需要 Flex 布局，且祖先链有固定宽度 |
+| `'fill-container(N)'` | 同上，无 Flex 时 fallback N | —                                      |
 
 `fill-container` 在 `layout: 'none'`（绝对定位）下无效。`fit-content` 仍可用于含文字节点（引擎通过 Yoga measureFunc 测量文字尺寸）。

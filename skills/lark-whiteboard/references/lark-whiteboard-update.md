@@ -81,6 +81,7 @@ npx -y @larksuite/whiteboard-cli@^0.1.0 --to openapi -i <画板 DSL> --format js
 ```
 
 ### 示例 4：使用 whiteboard-cli 使用画板 DSL 生成 Raw 格式 Json，并使用其更新画板
+whiteboard-cli 工具的具体用法请参考 [../lark-whiteboard-draw/SKILL.md](../lark-whiteboard-draw/SKILL.md)
 ```bash
 # 使用 whiteboard-cli 生成 OpenAPI 格式并通过管道传递
 npx -y @larksuite/whiteboard-cli@^0.1.0 --to openapi -i <画板 DSL> -o ./temp.json
