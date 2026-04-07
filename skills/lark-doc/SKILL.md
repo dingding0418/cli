@@ -106,7 +106,7 @@ Drive Folder (云空间文件夹)
 ### 场景 2：刚创建画板，需要编辑
 如果用户刚通过 `docs +update` 或 `docs +create` 创建了空白画板，需要编辑时：
 **步骤 1：按空白画板语法创建**
-- 在 `--content` 中传入 `<whiteboard type="blank"></whiteboard>`，多个画板需要写多个标签
+- `--doc-format xml --content <whiteboard type="blank"></whiteboard>`，多个画板需要写多个标签
 **步骤 2：从响应中提取画板 token**
 - 创建成功后，从响应字段 `data.document.newblocks` 中提取新建的 block
 - `newblocks` 是本次新增的 block 列表，画板类型的 block 中包含画板 `token`，后续编辑使用此 token

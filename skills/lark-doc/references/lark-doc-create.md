@@ -64,9 +64,9 @@ lark-cli docs +create --parent-position my_library --content '<title>标题</tit
 ## 参数
 
 | 参数                  | 必填 | 说明                                          |
-| ------------------- | -- | ------------------------------------------- |
+| ------------------- | -- |---------------------------------------------|
 | `--content`         | 是  | 文档内容（XML 或 Markdown 格式）                     |
-| `--doc-format`      | 否  | 内容格式：`xml`（默认）\| `markdown`                 |
+| `--doc-format`      | 否  | 内容格式：`xml`（默认、优先）\| `markdown`              |
 | `--parent-token`    | 否  | 父文件夹或知识库节点 token（与 `--parent-position` 互斥）  |
 | `--parent-position` | 否  | 父节点位置，如 `my_library`（与 `--parent-token` 互斥） |
 

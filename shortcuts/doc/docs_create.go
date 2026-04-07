@@ -17,8 +17,8 @@ var DocsCreate = common.Shortcut{
 	AuthTypes:   []string{"user", "bot"},
 	Scopes:      []string{"docx:document:create"},
 	Flags: []common.Flag{
-		{Name: "content", Desc: "document content (XML or Markdown)", Required: true,Input: []string{common.File, common.Stdin}},
-		{Name: "doc-format", Desc: "content format", Default: "xml", Enum: []string{"xml", "markdown"}},
+		{Name: "content", Desc: "document content (XML or Markdown)", Required: true, Input: []string{common.File, common.Stdin}},
+		{Name: "doc-format", Desc: "content format（prefer XML）", Default: "xml", Enum: []string{"xml", "markdown"}},
 		{Name: "parent-token", Desc: "parent folder or wiki-node token"},
 		{Name: "parent-position", Desc: "parent position (e.g. my_library)"},
 	},

@@ -287,6 +287,14 @@ func (ctx *RuntimeContext) DoAPIJSON(method, apiPath string, query larkcore.Quer
 	if envelope.Code != 0 {
 		return nil, output.ErrAPI(envelope.Code, envelope.Msg, detail)
 	}
+	if detail != nil {
+		if envelope.Data == nil {
+			envelope.Data = make(map[string]any)
+		}
+		for k, v := range detail {
+			envelope.Data[k] = v
+		}
+	}
 	return envelope.Data, nil
 }
 

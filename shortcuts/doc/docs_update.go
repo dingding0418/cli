@@ -29,7 +29,7 @@ var DocsUpdate = common.Shortcut{
 	Flags: []common.Flag{
 		{Name: "doc", Desc: "document URL or token", Required: true},
 		{Name: "command", Desc: "operation: str_replace | str_delete | block_delete | block_insert | block_replace | create", Required: true, Enum: validCommands},
-		{Name: "doc-format", Desc: "content format", Default: "xml", Enum: []string{"xml", "markdown"}},
+		{Name: "doc-format", Desc: "content format（prefer XML）", Default: "xml", Enum: []string{"xml", "markdown"}},
 		{Name: "content", Desc: "new content (XML or Markdown)", Input: []string{common.File, common.Stdin}},
 		{Name: "pattern", Desc: "regex pattern for str_replace / str_delete"},
 		{Name: "block-id", Desc: "target block ID for block_* operations"},

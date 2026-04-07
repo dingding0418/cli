@@ -63,9 +63,12 @@ func extractDocumentToken(raw, marker string) (string, bool) {
 // doDocAPI executes an OpenAPI request against the docs_ai endpoints and returns
 // the parsed "data" field from the standard Lark response envelope {code, msg, data}.
 func doDocAPI(runtime *common.RuntimeContext, method, apiPath string, body interface{}) (map[string]interface{}, error) {
-	boeHeader := larkcore.WithHeaders(http.Header{
-		"X-TT-ENV": []string{"boe_sun_test_ai"},
-	})
+	boeHeader := func(option *larkcore.RequestOption) {
+		if option.Header == nil {
+			option.Header = make(http.Header)
+		}
+		option.Header.Set("X-TT-ENV", "boe_sun_test_ai")
+	}
 	return runtime.DoAPIJSON(method, apiPath, nil, body, boeHeader)
 }
 
