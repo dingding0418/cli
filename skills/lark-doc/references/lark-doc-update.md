@@ -4,7 +4,10 @@
 > **前置条件：** 先阅读 [`../lark-shared/SKILL.md`](../../lark-shared/SKILL.md) 了解认证、全局参数和安全规则。
 
 通过六种指令精确更新飞书云文档。支持字符串级别和 block 级别的操作。
-1. 如果使用 XML 格式，必须读取 [lark-doc-xml](lark-doc-xml.md) 中的语法规则。
+
+> **⚠️ 格式选择规则：始终使用 XML 格式（默认），除非用户明确要求使用 Markdown。** 不要因为 Markdown 写起来更简单就自行切换为 Markdown。
+
+1. 使用 XML 格式时，必须先读取 [lark-doc-xml](lark-doc-xml.md) 中的语法规则。
 
 ## 参数
 
@@ -12,7 +15,7 @@
 |------|------|------|
 | `--doc` | 是 | 文档 URL 或 token |
 | `--command` | 是 | 操作指令（见下方指令速查表） |
-| `--doc-format` | 否 | 内容格式：`xml`（默认）\| `markdown` |
+| `--doc-format` | 否 | 内容格式：`xml`（默认，始终优先使用）\| `markdown`（仅用户明确要求时） |
 | `--content` | 视指令 | 写入内容 |
 | `--pattern` | 视指令 | 匹配文本（str_replace / str_delete） |
 | `--block-id` | 视指令 | 目标 block ID（block_* 操作） |
@@ -27,7 +30,7 @@
 | `block_insert` | 在指定 block 之后插入新内容 | `--block-id` `--content` |
 | `block_replace` | 替换指定 block（同一 block 仅限一次） | `--block-id` `--content` |
 | `block_delete` | 删除指定 block（逗号分隔可批量） | `--block-id` |
-| `create` | ⚠️ 清空文档后全文重写（可能丢失图片、评论） | `--content` |
+| `overwrite` | ⚠️ 清空文档后全文重写（可能丢失图片、评论） | `--content` |
 
 ## 指令示例
 
@@ -42,7 +45,7 @@ lark-cli docs +update --doc "<doc_id>" --command str_replace \
 lark-cli docs +update --doc "<doc_id>" --command str_replace \
   --pattern "旧链接" --content '<b>新链接</b> <a href="https://example.com">点击查看</a>'
 
-# 使用 Markdown 格式
+# 仅当用户明确要求时才使用 Markdown
 lark-cli docs +update --doc "<doc_id>" --command str_replace \
   --doc-format markdown --pattern "旧内容" --content "新内容"
 ```
@@ -77,10 +80,10 @@ lark-cli docs +update --doc "<doc_id>" --command block_delete \
   --block-id "blkcnXXXX"
 ```
 
-### create — 全文覆盖
+### overwrite — 全文覆盖
 
 ```bash
-lark-cli docs +update --doc "<doc_id>" --command create \
+lark-cli docs +update --doc "<doc_id>" --command overwrite \
   --content '<title>全新文档</title><h1>概述</h1><p>新的内容</p>'
 ```
 
@@ -146,7 +149,7 @@ lark-cli docs +update --doc "<doc_id>" --command str_replace \
 
 ## 最佳实践
 
-- **精确操作优于全文覆盖**：使用 `block_replace`/`block_insert` 精确修改，避免 `create` 全文覆盖
+- **精确操作优于全文覆盖**：使用 `block_replace`/`block_insert` 精确修改，避免 `overwrite` 全文覆盖
 - **保护不可重建的内容**：图片、画板、电子表格等以 token 形式存储，替换时避开这些 block
 - **str_replace 的 replacement 支持富文本**：可以用行内标签 `<b>`、`<a>` 等替换普通文本为富文本
 - **同一 block 只能被 replace 一次**：多次修改同一 block 请合并为一次 block_replace

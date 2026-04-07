@@ -16,7 +16,7 @@ var validCommands = []string{
 	"block_delete",
 	"block_insert",
 	"block_replace",
-	"create",
+	"overwrite",
 }
 
 var DocsUpdate = common.Shortcut{
@@ -28,7 +28,7 @@ var DocsUpdate = common.Shortcut{
 	AuthTypes:   []string{"user", "bot"},
 	Flags: []common.Flag{
 		{Name: "doc", Desc: "document URL or token", Required: true},
-		{Name: "command", Desc: "operation: str_replace | str_delete | block_delete | block_insert | block_replace | create", Required: true, Enum: validCommands},
+		{Name: "command", Desc: "operation: str_replace | str_delete | block_delete | block_insert | block_replace | overwrite", Required: true, Enum: validCommands},
 		{Name: "doc-format", Desc: "content format（prefer XML）", Default: "xml", Enum: []string{"xml", "markdown"}},
 		{Name: "content", Desc: "new content (XML or Markdown)", Input: []string{common.File, common.Stdin}},
 		{Name: "pattern", Desc: "regex pattern for str_replace / str_delete"},
@@ -71,9 +71,9 @@ var DocsUpdate = common.Shortcut{
 			if content == "" {
 				return common.FlagErrorf("--command block_replace requires --content")
 			}
-		case "create":
+		case "overwrite":
 			if content == "" {
-				return common.FlagErrorf("--command create requires --content")
+				return common.FlagErrorf("--command overwrite requires --content")
 			}
 		}
 		return nil

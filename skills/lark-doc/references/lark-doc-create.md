@@ -4,22 +4,24 @@
 
 从 XML（默认）或 Markdown 内容创建一个新的飞书云文档。
 
-1. 如果使用 XML 格式创建，必须读取 [lark-doc-xml](lark-doc-xml.md) 中的语法规则。
+> **⚠️ 格式选择规则：始终使用 XML 格式（默认），除非用户明确要求使用 Markdown。** XML 表达能力更强、支持更多 block 类型（callout、grid、checkbox 等），是推荐的首选格式。不要因为 Markdown 写起来更简单就自行切换为 Markdown。
+
+1. 使用 XML 格式创建时，必须先读取 [lark-doc-xml](lark-doc-xml.md) 中的语法规则。
 
 ## 命令
 
 ```bash
-# 创建 XML 文档（默认格式）
+# 创建 XML 文档（默认格式，推荐）
 lark-cli docs +create --content '<title>项目计划</title><h1>目标</h1><ul><li>目标 1</li><li>目标 2</li></ul>'
 
-# 创建 Markdown 文档
-lark-cli docs +create --doc-format markdown --content "# 项目计划\n\n## 目标\n\n- 目标 1\n- 目标 2"
-
-# 创建到指定文件夹
+# 创建到指定文件夹（XML）
 lark-cli docs +create --parent-token fldcnXXXX --content '<title>标题</title><p>首段内容</p>'
 
-# 创建到个人知识库
+# 创建到个人知识库（XML）
 lark-cli docs +create --parent-position my_library --content '<title>标题</title><p>内容</p>'
+
+# 仅当用户明确要求时才使用 Markdown
+lark-cli docs +create --doc-format markdown --content "# 项目计划\n\n## 目标\n\n- 目标 1\n- 目标 2"
 ```
 
 ## 返回值
@@ -66,7 +68,7 @@ lark-cli docs +create --parent-position my_library --content '<title>标题</tit
 | 参数                  | 必填 | 说明                                          |
 | ------------------- | -- |---------------------------------------------|
 | `--content`         | 是  | 文档内容（XML 或 Markdown 格式）                     |
-| `--doc-format`      | 否  | 内容格式：`xml`（默认、优先）\| `markdown`              |
+| `--doc-format`      | 否  | 内容格式：`xml`（默认，始终优先使用）\| `markdown`（仅用户明确要求时） |
 | `--parent-token`    | 否  | 父文件夹或知识库节点 token（与 `--parent-position` 互斥）  |
 | `--parent-position` | 否  | 父节点位置，如 `my_library`（与 `--parent-token` 互斥） |
 

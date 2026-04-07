@@ -12,6 +12,8 @@ metadata:
 
 **CRITICAL — 开始前 MUST 先用 Read 工具读取 [`../lark-shared/SKILL.md`](../lark-shared/SKILL.md)，其中包含认证、权限处理**
 
+> **⚠️ 格式选择规则（全局）：`docs +create` 和 `docs +update` 始终使用 XML 格式（`--doc-format xml`，即默认值），除非用户明确要求使用 Markdown。** XML 是飞书文档的首选格式，表达能力更强，支持 callout、grid、checkbox 等丰富 block 类型。不要因为 Markdown 更简单就自行选择 Markdown。
+
 ## 核心概念
 
 ### 文档类型与 Token

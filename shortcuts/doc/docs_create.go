@@ -43,6 +43,7 @@ var DocsCreate = common.Shortcut{
 			return err
 		}
 
+		stripBlockIDs(data)
 		runtime.Out(data, nil)
 		return nil
 	},

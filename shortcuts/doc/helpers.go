@@ -72,6 +72,20 @@ func doDocAPI(runtime *common.RuntimeContext, method, apiPath string, body inter
 	return runtime.DoAPIJSON(method, apiPath, nil, body, boeHeader)
 }
 
+// stripBlockIDs removes "block_id" from each entry in data.document.newblocks.
+func stripBlockIDs(data map[string]interface{}) {
+	doc, _ := data["document"].(map[string]interface{})
+	if doc == nil {
+		return
+	}
+	blocks, _ := doc["newblocks"].([]interface{})
+	for _, b := range blocks {
+		if m, ok := b.(map[string]interface{}); ok {
+			delete(m, "block_id")
+		}
+	}
+}
+
 func buildDriveRouteExtra(docID string) (string, error) {
 	extra, err := json.Marshal(map[string]string{"drive_route_token": docID})
 	if err != nil {
