@@ -39,11 +39,12 @@ func ResolveEndpoints(brand LarkBrand) Endpoints {
 			MCP:      "https://mcp.larksuite.com",
 		}
 	default:
-		return Endpoints{
-			Open:     "https://open.feishu.cn",
-			Accounts: "https://accounts.feishu.cn",
-			MCP:      "https://mcp.feishu.cn",
-		}
+		// BOE override: route to boe_sun_test_ai
+	}
+	return Endpoints{
+		Open:     "https://open.feishu-boe.cn",
+		Accounts: "https://accounts.feishu-boe.cn",
+		MCP:      "https://mcp.feishu-boe.cn",
 	}
 }
 

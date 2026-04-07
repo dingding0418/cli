@@ -15,7 +15,7 @@ p, h1-h9, ul, ol, li, table, thead, tbody, tr, th, td, blockquote, pre, code, hr
 |-|-|-|
 | `<callout>` | 高亮提示框，子块仅支持文本、标题、列表、待办、引用 | `emoji`(默认 bulb), `background-color`, `border-color`, `text-color` |
 | `<grid>` + `<column>` | 分栏布局，各列 width-ratio 之和为 1 | `width-ratio` |
-| `<whiteboard>` | 嵌入画板 | `type` |
+| `<whiteboard>` | 嵌入画板 | `type`: `mermaid` \| `plantuml` \| `blank` |
 | `<pre>` | （代码块，内含 `code`）| `lang`, `caption` |
 | `<figure>` | 视图容器 | `view-type` |
 
@@ -64,9 +64,7 @@ p, h1-h9, ul, ol, li, table, thead, tbody, tr, th, td, blockquote, pre, code, hr
 - 常用 emoji： 💡(默认)✅❌⚠️📝❓❗👍❤️📌🏁⭐
 
 # 五、**重要规则**
-## xml 转义
-用于标签内部的文本内容：
-
+## 标签内部的文本内容针对特殊含义符号必须进行转义(标签本身不需要)：
 | 原始字符 | 转义后 |
 |-|-|
 | `<` | `&lt;` |

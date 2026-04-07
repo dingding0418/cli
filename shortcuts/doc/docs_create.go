@@ -31,14 +31,14 @@ var DocsCreate = common.Shortcut{
 	DryRun: func(ctx context.Context, runtime *common.RuntimeContext) *common.DryRunAPI {
 		body := buildCreateBody(runtime)
 		return common.NewDryRunAPI().
-			POST("/open-apis/docs_ai/v1/documents/create").
+			POST("/open-apis/docs_ai/v1/documents").
 			Desc("OpenAPI: create document").
 			Body(body)
 	},
 	Execute: func(ctx context.Context, runtime *common.RuntimeContext) error {
 		body := buildCreateBody(runtime)
 
-		data, err := doDocAPI(runtime, "POST", "/open-apis/docs_ai/v1/documents/create", body)
+		data, err := doDocAPI(runtime, "POST", "/open-apis/docs_ai/v1/documents", body)
 		if err != nil {
 			return err
 		}
