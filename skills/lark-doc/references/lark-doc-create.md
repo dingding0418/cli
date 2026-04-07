@@ -3,7 +3,7 @@
 
 > **前置条件：** 先阅读 [`../lark-shared/SKILL.md`](../../lark-shared/SKILL.md) 了解认证、全局参数和安全规则。
 
-从 XML（默认）或 Markdown 内容创建一个新的飞书云文档。
+从 XML（默认）或 Markdown 内容创建一个新的飞书云文档。XML 语法参见 [lark-doc-xml](lark-doc-xml.md)。
 
 ## 命令
 
@@ -31,11 +31,16 @@ lark-cli docs +create --parent-position my_library --content '<title>标题</tit
     "document": {
       "document_id": "doxcnXXXXXXXXXXXXXXXXXXX",
       "revision_id": 1,
-      "url": "https://xxx.feishu.cn/docx/doxcnXXXXXXXXXXXXXXXXXXX"
+      "url": "https://xxx.feishu.cn/docx/doxcnXXXXXXXXXXXXXXXXXXX",
+      "newblocks": [
+        { "block_id": "blkcnXXXX", "block_type": "whiteboard", "token": "boardXXXX" }
+      ]
     }
   }
 }
 ```
+
+- **`document.newblocks`**：本次操作新增的 block 列表（如画板），可从中提取 `token` 用于后续编辑
 
 > [!IMPORTANT]
 > 如果文档是**以应用身份（bot）创建**的，agent 在创建成功后应**默认继续使用 bot 身份**，为当前可用的 user 身份添加该文档的 `full_access`（管理员）权限。推荐流程：
@@ -71,6 +76,7 @@ lark-cli docs +create --parent-position my_library --content '<title>标题</tit
 
 ## 参考
 
+- [lark-doc-xml](lark-doc-xml.md) — XML 语法规范
 - [lark-doc-fetch](lark-doc-fetch.md) — 获取文档
 - [lark-doc-update](lark-doc-update.md) — 更新文档
 - [lark-doc-media-insert](lark-doc-media-insert.md) — 插入图片/文件到文档
