@@ -1,6 +1,21 @@
 # Workflow 数据结构参考
 
-本文档定义 `+workflow-create` / `+workflow-update` 命令 `--json` body 的完整数据结构（V2 协议）。
+本文档定义 Workflow 的完整数据结构，适用于：
+- **查询场景**：理解 `+workflow-get` 返回的 `steps` 结构
+- **创建/修改场景**：构造 `+workflow-create` / `+workflow-update` 的 `--json` body
+> 💡 **本文档是纯字段参考**。如需**创建/修改**工作流的完整示例，请阅读 [workflow-guide.md](lark-base-workflow-guide.md)。
+---
+## 📖 快速导航
+
+根据你的需求跳转到对应章节：
+
+| 需求 | 章节 |
+|------|------|
+| 了解 Step 基础结构 | [WorkflowStep 基础结构](#workflowstep-基础结构) |
+| 查询 Trigger 类型及 data 字段 | [Trigger data](#trigger-data-详细结构) |
+| 查询 Action 类型及 data 字段 | [Action data](#action-data-详细结构) |
+| 查询 Branch/Loop 结构 | [Branch data](#branch-data-详细结构) / [System data](#system-data-详细结构) |
+| 查询 ValueInfo/Condition 等公共类型 | [公共类型](#公共类型) |
 
 ---
 
@@ -127,6 +142,7 @@
 ---
 
 ## Trigger data 详细结构
+
 
 ### AddRecordTrigger
 
