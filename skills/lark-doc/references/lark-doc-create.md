@@ -1,9 +1,10 @@
-
 # docs +create（创建飞书云文档）
 
 > **前置条件：** 先阅读 [`../lark-shared/SKILL.md`](../../lark-shared/SKILL.md) 了解认证、全局参数和安全规则。
 
-从 XML（默认）或 Markdown 内容创建一个新的飞书云文档。XML 语法参见 [lark-doc-xml](lark-doc-xml.md)。
+从 XML（默认）或 Markdown 内容创建一个新的飞书云文档。
+
+1. 如果使用 XML 格式创建，必须读取 [lark-doc-xml](lark-doc-xml.md) 中的语法规则。
 
 ## 命令
 
@@ -42,14 +43,16 @@ lark-cli docs +create --parent-position my_library --content '<title>标题</tit
 
 - **`document.newblocks`**：本次操作新增的 block 列表（如画板），可从中提取 `token` 用于后续编辑
 
-> [!IMPORTANT]
+> \[!IMPORTANT]
 > 如果文档是**以应用身份（bot）创建**的，agent 在创建成功后应**默认继续使用 bot 身份**，为当前可用的 user 身份添加该文档的 `full_access`（管理员）权限。推荐流程：
+>
 > 1. 先用 `lark-cli contact +get-user` 获取当前用户信息，并从返回结果中读取该用户的 `open_id`
 > 2. 再切回 bot 身份，使用这个 `open_id` 给该用户授权该文档的 `full_access`（管理员）权限
 >
 > 如果 `lark-cli contact +get-user` 无法执行，或者本地没有可用的 user 身份、拿不到当前用户的 `open_id`，则应视为“本地没有可用的 user 身份”，明确说明因此未完成授权。
 >
 > 回复创建结果时，除 `doc_id` / `doc_url` 外，还必须明确告知用户授权结果：
+>
 > - 如果授权成功：直接说明当前 user 已获得该文档的管理员权限
 > - 如果本地没有可用的 user 身份：明确说明因此未完成授权
 > - 如果授权失败：明确说明文档已创建成功，但授权失败，并透出失败原因；同时提示用户可以稍后重试授权，或继续使用应用身份（bot）处理该文档
@@ -60,14 +63,15 @@ lark-cli docs +create --parent-position my_library --content '<title>标题</tit
 
 ## 参数
 
-| 参数 | 必填 | 说明 |
-|------|------|------|
-| `--content` | 是 | 文档内容（XML 或 Markdown 格式） |
-| `--doc-format` | 否 | 内容格式：`xml`（默认）\| `markdown` |
-| `--parent-token` | 否 | 父文件夹或知识库节点 token（与 `--parent-position` 互斥） |
-| `--parent-position` | 否 | 父节点位置，如 `my_library`（与 `--parent-token` 互斥） |
+| 参数                  | 必填 | 说明                                          |
+| ------------------- | -- | ------------------------------------------- |
+| `--content`         | 是  | 文档内容（XML 或 Markdown 格式）                     |
+| `--doc-format`      | 否  | 内容格式：`xml`（默认）\| `markdown`                 |
+| `--parent-token`    | 否  | 父文件夹或知识库节点 token（与 `--parent-position` 互斥）  |
+| `--parent-position` | 否  | 父节点位置，如 `my_library`（与 `--parent-token` 互斥） |
 
 ## 最佳实践
+
 - 空行分隔：不同块类型之间用空行分隔
 - 结构清晰：标题层级 ≤ 4 层，用 Callout 突出关键信息
 - 视觉节奏：用分割线、分栏、表格打破大段纯文字
@@ -81,3 +85,4 @@ lark-cli docs +create --parent-position my_library --content '<title>标题</tit
 - [lark-doc-update](lark-doc-update.md) — 更新文档
 - [lark-doc-media-insert](lark-doc-media-insert.md) — 插入图片/文件到文档
 - [lark-shared](../../lark-shared/SKILL.md) — 认证和全局参数
+

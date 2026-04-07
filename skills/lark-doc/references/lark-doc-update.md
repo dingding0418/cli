@@ -3,7 +3,8 @@
 
 > **前置条件：** 先阅读 [`../lark-shared/SKILL.md`](../../lark-shared/SKILL.md) 了解认证、全局参数和安全规则。
 
-通过六种指令精确更新飞书云文档。支持字符串级别和 block 级别的操作。内容默认使用 XML 格式（语法参见 [lark-doc-xml](lark-doc-xml.md)）
+通过六种指令精确更新飞书云文档。支持字符串级别和 block 级别的操作。
+1. 如果使用 XML 格式，必须读取 [lark-doc-xml](lark-doc-xml.md) 中的语法规则。
 
 ## 参数
 

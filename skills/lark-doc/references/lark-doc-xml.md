@@ -64,10 +64,90 @@ p, h1-h9, ul, ol, li, table, thead, tbody, tr, th, td, blockquote, pre, code, hr
 - 常用 emoji： 💡(默认)✅❌⚠️📝❓❗👍❤️📌🏁⭐
 
 # 五、**重要规则**
-## 标签内部的文本内容针对特殊含义符号必须进行转义(标签本身不需要)：
+## 仅标签内部的文本内容需要转义，标签本身不需要转义：
 | 原始字符 | 转义后 |
 |-|-|
 | `<` | `&lt;` |
 | `>` | `&gt;` |
 | `&` | `&amp;` |
 | `\n`（换行符） | `<br/>` |
+
+
+## 六、完整示例
+
+```xml
+<title>项目周报 - 第 12 周</title>
+
+<h1>本周进展</h1>
+
+<p>完成了 <b>用户认证模块</b> 重构，性能提升 <span text-color="green">40%</span>。</p>
+
+<callout emoji="💡" background-color="light-blue" border-color="blue">
+  <p>P99 延迟从 200ms 降到 120ms。</p>
+</callout>
+
+<h2>任务清单</h2>
+
+<checkbox done="true">完成认证模块重构</checkbox>
+<checkbox done="false">更新 API 文档</checkbox>
+
+<h2>方案对比</h2>
+
+<grid>
+  <column width-ratio="0.5">
+    <h3>JWT 方案</h3>
+    <ul><li>无状态，扩展性好</li></ul>
+  </column>
+  <column width-ratio="0.5">
+    <h3>Session 方案</h3>
+    <ul><li>可即时失效</li></ul>
+  </column>
+</grid>
+
+<table>
+  <colgroup>
+    <col span="3" width="100"/>
+  </colgroup>
+  <thead>
+    <tr>
+      <th background-color="light-gray">指标</th>
+      <th background-color="light-gray">重构前</th>
+      <th background-color="light-gray">重构后</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>P99</td>
+      <td>200ms</td>
+      <td><span text-color="green">120ms</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>详见 <cite type="doc" doc-id="性能报告"></cite>，请 <cite type="user" user-id="张三"></cite> 复核。</p>
+
+<ol>
+  <li seq="auto">完成文档更新</li>
+  <li seq="auto">灰度发布</li>
+</ol>
+
+<p>参考：<a type="url-preview" href="https://wiki.example.com/gray">灰度指南</a></p>
+
+<blockquote>
+  <p>公式：<latex>P_{99} = \mu + 2.326\sigma</latex></p>
+</blockquote>
+
+<pre lang="go" caption="核心优化"><code>func Auth(ctx context.Context, token string) (*User, error) {
+    if u, ok := cache.Get(token); ok { return u, nil }
+    return redis.GetUser(ctx, token)
+}</code></pre>
+
+<hr/>
+
+<p>附件：<source name="benchmark.pdf"/></p>
+<p>图片：<img width="800" height="400" caption="架构图" name="arch.png"/></p>
+<p>操作：<button background-color="blue">打开面板</button></p>
+<p>提醒：<time>本周五下午截止</time></p>
+<p>工单：<cite type="jira-issue">PROJ-456</cite></p>
+<p>引文：<cite type="citation"><a href="https://example.com">参考文献 1</a></cite></p>
+```
