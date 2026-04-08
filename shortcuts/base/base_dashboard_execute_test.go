@@ -606,3 +606,198 @@ func TestBaseDashboardBlockCreate_InvalidRollup(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
+
+// ── Text Block Tests ────────────────────────────────────────────────
+
+func TestBaseDashboardBlockExecuteCreate_TextType(t *testing.T) {
+	t.Run("valid text block", func(t *testing.T) {
+		factory, stdout, reg := newExecuteFactory(t)
+		reg.Register(&httpmock.Stub{
+			Method: "POST",
+			URL:    "/open-apis/base/v3/bases/app_x/dashboards/dsh_001/blocks",
+			Body: map[string]interface{}{
+				"code": 0,
+				"data": map[string]interface{}{
+					"block_id": "blk_text",
+					"name":     "说明文字",
+					"type":     "text",
+					"data_config": map[string]interface{}{
+						"text": "# 标题\n**加粗**",
+					},
+				},
+			},
+		})
+		args := []string{"+dashboard-block-create", "--base-token", "app_x", "--dashboard-id", "dsh_001",
+			"--name", "说明文字", "--type", "text",
+			"--data-config", `{"text":"# 标题\n**加粗**"}`,
+		}
+		if err := runShortcut(t, BaseDashboardBlockCreate, args, factory, stdout); err != nil {
+			t.Fatalf("err=%v", err)
+		}
+		got := stdout.String()
+		if !strings.Contains(got, `"blk_text"`) || !strings.Contains(got, `"created": true`) {
+			t.Fatalf("stdout=%s", got)
+		}
+	})
+
+	t.Run("text block missing text field", func(t *testing.T) {
+		factory, stdout, _ := newExecuteFactory(t)
+		args := []string{"+dashboard-block-create", "--base-token", "app_x", "--dashboard-id", "dsh_001",
+			"--name", "Bad", "--type", "text",
+			"--data-config", `{}`,
+		}
+		err := runShortcut(t, BaseDashboardBlockCreate, args, factory, stdout)
+		if err == nil {
+			t.Fatalf("expected validation error for missing text field")
+		}
+		if got := err.Error(); !strings.Contains(got, "text") || !strings.Contains(got, "data_config 校验失败") {
+			t.Fatalf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("text block with extra fields allowed", func(t *testing.T) {
+		factory, stdout, reg := newExecuteFactory(t)
+		reg.Register(&httpmock.Stub{
+			Method: "POST",
+			URL:    "/open-apis/base/v3/bases/app_x/dashboards/dsh_001/blocks",
+			Body: map[string]interface{}{
+				"code": 0,
+				"data": map[string]interface{}{
+					"block_id": "blk_text2",
+					"name":     "带额外字段",
+					"type":     "text",
+				},
+			},
+		})
+		// text 类型允许包含其他字段，只要 text 字段存在即可
+		args := []string{"+dashboard-block-create", "--base-token", "app_x", "--dashboard-id", "dsh_001",
+			"--name", "带额外字段", "--type", "text",
+			"--data-config", `{"text":"内容","series":[{"field_name":"金额","rollup":"SUM"}]}`,
+		}
+		if err := runShortcut(t, BaseDashboardBlockCreate, args, factory, stdout); err != nil {
+			t.Fatalf("err=%v", err)
+		}
+		got := stdout.String()
+		if !strings.Contains(got, `"blk_text2"`) || !strings.Contains(got, `"created": true`) {
+			t.Fatalf("stdout=%s", got)
+		}
+	})
+}
+
+func TestBaseDashboardBlockExecuteUpdate_TextType(t *testing.T) {
+	t.Run("update text content", func(t *testing.T) {
+		factory, stdout, reg := newExecuteFactory(t)
+		reg.Register(&httpmock.Stub{
+			Method: "PATCH",
+			URL:    "/open-apis/base/v3/bases/app_x/dashboards/dsh_001/blocks/blk_text",
+			Body: map[string]interface{}{
+				"code": 0,
+				"data": map[string]interface{}{
+					"block_id": "blk_text",
+					"name":     "更新后的标题",
+					"type":     "text",
+					"data_config": map[string]interface{}{
+						"text": "# 新内容",
+					},
+				},
+			},
+		})
+		args := []string{"+dashboard-block-update", "--base-token", "app_x", "--dashboard-id", "dsh_001", "--block-id", "blk_text",
+			"--name", "更新后的标题",
+			"--data-config", `{"text":"# 新内容"}`,
+		}
+		if err := runShortcut(t, BaseDashboardBlockUpdate, args, factory, stdout); err != nil {
+			t.Fatalf("err=%v", err)
+		}
+		got := stdout.String()
+		if !strings.Contains(got, `"updated": true`) || !strings.Contains(got, "新内容") {
+			t.Fatalf("stdout=%s", got)
+		}
+	})
+
+	t.Run("update without type skips strict validation", func(t *testing.T) {
+		factory, stdout, reg := newExecuteFactory(t)
+		// update 不传 type，不做强类型校验，直接透传给后端
+		reg.Register(&httpmock.Stub{
+			Method: "PATCH",
+			URL:    "/open-apis/base/v3/bases/app_x/dashboards/dsh_001/blocks/blk_text",
+			Body: map[string]interface{}{
+				"code": 0,
+				"data": map[string]interface{}{
+					"block_id": "blk_text",
+					"type":     "text",
+				},
+			},
+		})
+		args := []string{"+dashboard-block-update", "--base-token", "app_x", "--dashboard-id", "dsh_001", "--block-id", "blk_text",
+			"--data-config", `{"content":"xxx"}`,
+		}
+		// 不传 type，本地不做强校验，让后端处理
+		err := runShortcut(t, BaseDashboardBlockUpdate, args, factory, stdout)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if got := stdout.String(); !strings.Contains(got, `"updated": true`) {
+			t.Fatalf("stdout=%s", got)
+		}
+	})
+}
+
+// ── Dashboard Arrange ────────────────────────────────────────────────
+
+func TestBaseDashboardExecuteArrange(t *testing.T) {
+	t.Run("arrange dashboard blocks", func(t *testing.T) {
+		factory, stdout, reg := newExecuteFactory(t)
+		reg.Register(&httpmock.Stub{
+			Method: "POST",
+			URL:    "/open-apis/base/v3/bases/app_x/dashboards/dsh_001/arrange",
+			Body: map[string]interface{}{
+				"code": 0,
+				"data": map[string]interface{}{
+					"dashboard_id": "dsh_001",
+					"name":         "测试仪表盘",
+					"blocks": []interface{}{
+						map[string]interface{}{
+							"block_id":   "cht_xxx",
+							"block_name": "组件1",
+							"block_type": "column",
+							"layout": map[string]interface{}{
+								"x": 0, "y": 0, "w": 500, "h": 400,
+							},
+						},
+					},
+				},
+			},
+		})
+		args := []string{"+dashboard-arrange", "--base-token", "app_x", "--dashboard-id", "dsh_001"}
+		if err := runShortcut(t, BaseDashboardArrange, args, factory, stdout); err != nil {
+			t.Fatalf("err=%v", err)
+		}
+		got := stdout.String()
+		if !strings.Contains(got, `"arranged": true`) || !strings.Contains(got, `"dashboard_id"`) {
+			t.Fatalf("stdout=%s", got)
+		}
+	})
+
+	t.Run("arrange with user-id-type", func(t *testing.T) {
+		factory, stdout, reg := newExecuteFactory(t)
+		reg.Register(&httpmock.Stub{
+			Method: "POST",
+			URL:    "user_id_type=union_id",
+			Body: map[string]interface{}{
+				"code": 0,
+				"data": map[string]interface{}{
+					"dashboard_id": "dsh_001",
+					"blocks":       []interface{}{},
+				},
+			},
+		})
+		args := []string{"+dashboard-arrange", "--base-token", "app_x", "--dashboard-id", "dsh_001", "--user-id-type", "union_id"}
+		if err := runShortcut(t, BaseDashboardArrange, args, factory, stdout); err != nil {
+			t.Fatalf("err=%v", err)
+		}
+		if got := stdout.String(); !strings.Contains(got, `"arranged": true`) || !strings.Contains(got, `"dashboard_id"`) {
+			t.Fatalf("stdout=%s", got)
+		}
+	})
+}

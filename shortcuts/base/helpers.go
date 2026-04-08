@@ -1016,6 +1016,16 @@ func normalizeDataConfig(cfg map[string]interface{}) map[string]interface{} {
 
 func validateBlockDataConfig(blockType string, cfg map[string]interface{}) []string {
 	var errs []string
+
+	// text 类型特殊校验：只需要有 text 字段即可
+	if strings.ToLower(blockType) == "text" {
+		if txt, _ := cfg["text"].(string); strings.TrimSpace(txt) == "" {
+			errs = append(errs, "text 类型组件缺少必填字段 text")
+		}
+		return errs
+	}
+
+	// 图表类型通用校验
 	// table_name 必填
 	if tn, _ := cfg["table_name"].(string); strings.TrimSpace(tn) == "" {
 		errs = append(errs, "缺少必填字段 table_name")

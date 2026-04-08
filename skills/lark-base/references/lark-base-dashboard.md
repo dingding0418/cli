@@ -18,6 +18,7 @@ Dashboard 是 Base 中的数据可视化看板，可以把表格数据变成**�
 | 在仪表盘里添加组件 | `+dashboard-block-create` | 先读 [lark-base-dashboard-block-create.md](lark-base-dashboard-block-create.md)，再读 [dashboard-block-data-config.md](dashboard-block-data-config.md) |
 | 修改组件 | `+dashboard-block-update` | 先读 [lark-base-dashboard-block-update.md](lark-base-dashboard-block-update.md)，再读 [dashboard-block-data-config.md](dashboard-block-data-config.md) |
 | 查看仪表盘有哪些组件 | `+dashboard-get` 或 `+dashboard-block-list` | 本页下方「查看仪表盘」 |
+| 智能重排组件布局 | `+dashboard-arrange` | [lark-base-dashboard-arrange.md](lark-base-dashboard-arrange.md) |
 
 ## 典型场景工作流
 
@@ -58,6 +59,12 @@ lark-cli base +dashboard-block-create \
   --data-config '{"table_name":"订单表","series":[{"field_name":"金额","rollup":"SUM"}],"group_by":[{"field_name":"月份","mode":"integrated"}]}'
 
 # 继续创建其他组件...
+
+# 第 5 步：组件创建完成后，使用 arrange 命令智能重排布局（可选但推荐）
+# 默认布局可能不够美观，arrange 会根据组件数量和类型自动优化布局
+lark-cli base +dashboard-arrange \
+  --base-token xxx \
+  --dashboard-id blk_xxx
 ```
 
 ### 场景 2：在已有仪表盘上添加新组件
@@ -154,6 +161,7 @@ lark-cli base +dashboard-block-get --base-token xxx --dashboard-id blk_xxx --blo
 | 类别比较（谁高谁低） | column | 柱状图组件 |
 | 占比分布（各部分比例） | pie | 饼图组件 |
 | 单个关键指标 | statistics | 指标卡组件 |
+| 富文本说明/标题/注释 | text | 文本组件（支持 Markdown） |
 
 详细组件类型和 data_config 完整规则：[dashboard-block-data-config.md](dashboard-block-data-config.md)
 

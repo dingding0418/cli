@@ -301,3 +301,30 @@ func executeDashboardBlockDelete(runtime *common.RuntimeContext) error {
 	runtime.Out(map[string]interface{}{"deleted": true, "block_id": runtime.Str("block-id")}, nil)
 	return nil
 }
+
+// ── Dashboard Arrange ────────────────────────────────────────────────
+
+func dryRunDashboardArrange(_ context.Context, runtime *common.RuntimeContext) *common.DryRunAPI {
+	params := map[string]interface{}{}
+	if userIDType := strings.TrimSpace(runtime.Str("user-id-type")); userIDType != "" {
+		params["user_id_type"] = userIDType
+	}
+	return dryRunDashboardBase(runtime).
+		POST("/open-apis/base/v3/bases/:base_token/dashboards/:dashboard_id/arrange").
+		Params(params)
+}
+
+func executeDashboardArrange(runtime *common.RuntimeContext) error {
+	params := map[string]interface{}{}
+	if userIDType := strings.TrimSpace(runtime.Str("user-id-type")); userIDType != "" {
+		params["user_id_type"] = userIDType
+	}
+	// 请求体为空对象，由服务端智能重排
+	data, err := baseV3Call(runtime, "POST", baseV3Path("bases", runtime.Str("base-token"), "dashboards", runtime.Str("dashboard-id"), "arrange"), params, map[string]interface{}{})
+	if err != nil {
+		return err
+	}
+	data["arranged"] = true
+	runtime.Out(data, nil)
+	return nil
+}
