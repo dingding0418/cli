@@ -17,12 +17,14 @@ import (
 	"golang.org/x/term"
 
 	extcred "github.com/larksuite/cli/extension/credential"
+	"github.com/larksuite/cli/extension/fileio"
 	"github.com/larksuite/cli/internal/auth"
 	"github.com/larksuite/cli/internal/core"
 	"github.com/larksuite/cli/internal/credential"
 	"github.com/larksuite/cli/internal/keychain"
 	"github.com/larksuite/cli/internal/registry"
 	"github.com/larksuite/cli/internal/util"
+	_ "github.com/larksuite/cli/internal/vfs/localfileio" // register default FileIO provider
 )
 
 // NewDefault creates a production Factory with cached closures.
@@ -43,6 +45,9 @@ func NewDefault(inv InvocationContext) *Factory {
 		ErrOut:     os.Stderr,
 		IsTerminal: term.IsTerminal(int(os.Stdin.Fd())),
 	}
+
+	// Phase 0: FileIO provider (no dependency)
+	f.FileIOProvider = fileio.GetProvider()
 
 	// Phase 1: HttpClient (no credential dependency)
 	f.HttpClient = cachedHttpClientFunc()
@@ -95,8 +100,8 @@ func cachedHttpClientFunc() func() (*http.Client, error) {
 		var transport http.RoundTripper = util.NewBaseTransport()
 		transport = &RetryTransport{Base: transport}
 		transport = &SecurityHeaderTransport{Base: transport}
-
 		transport = &auth.SecurityPolicyTransport{Base: transport} // Add our global response interceptor
+		transport = wrapWithExtension(transport)
 		client := &http.Client{
 			Transport:     transport,
 			Timeout:       30 * time.Second,
@@ -133,7 +138,7 @@ func buildSDKTransport() http.RoundTripper {
 	sdkTransport = &RetryTransport{Base: sdkTransport}
 	sdkTransport = &UserAgentTransport{Base: sdkTransport}
 	sdkTransport = &auth.SecurityPolicyTransport{Base: sdkTransport}
-	return sdkTransport
+	return wrapWithExtension(sdkTransport)
 }
 
 type credentialDeps struct {
