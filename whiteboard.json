@@ -1,0 +1,124 @@
+{
+  "version": 2,
+  "nodes": [
+    {
+      "type": "frame",
+      "id": "container",
+      "width": 600,
+      "height": "fit-content",
+      "layout": "vertical",
+      "gap": 40,
+      "padding": 40,
+      "fillColor": "#F4F5F7",
+      "borderRadius": 8,
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "rect",
+          "id": "client",
+          "width": 160,
+          "height": "fit-content",
+          "text": "客户端",
+          "fillColor": "#FFFFFF",
+          "borderColor": "#3370FF",
+          "borderWidth": 2,
+          "borderRadius": 4,
+          "fontSize": 16
+        },
+        {
+          "type": "frame",
+          "layout": "horizontal",
+          "width": "fit-content",
+          "height": "fit-content",
+          "gap": 60,
+          "padding": 0,
+          "children": [
+            {
+              "type": "rect",
+              "id": "serviceA",
+              "width": 160,
+              "height": "fit-content",
+              "text": "服务 A",
+              "fillColor": "#FFFFFF",
+              "borderColor": "#34C724",
+              "borderWidth": 2,
+              "borderRadius": 4,
+              "fontSize": 16
+            },
+            {
+              "type": "rect",
+              "id": "serviceB",
+              "width": 160,
+              "height": "fit-content",
+              "text": "服务 B",
+              "fillColor": "#FFFFFF",
+              "borderColor": "#FF8800",
+              "borderWidth": 2,
+              "borderRadius": 4,
+              "fontSize": 16
+            }
+          ]
+        },
+        {
+          "type": "cylinder",
+          "id": "database",
+          "width": 200,
+          "height": "fit-content",
+          "text": "数据库",
+          "fillColor": "#FFFFFF",
+          "borderColor": "#8F959E",
+          "borderWidth": 2,
+          "fontSize": 16
+        }
+      ]
+    },
+    {
+      "type": "connector",
+      "connector": {
+        "from": "client",
+        "to": "serviceA",
+        "fromAnchor": "bottom",
+        "toAnchor": "top",
+        "lineColor": "#BBBFC4",
+        "lineWidth": 2,
+        "endArrow": "triangle"
+      }
+    },
+    {
+      "type": "connector",
+      "connector": {
+        "from": "client",
+        "to": "serviceB",
+        "fromAnchor": "bottom",
+        "toAnchor": "top",
+        "lineColor": "#BBBFC4",
+        "lineWidth": 2,
+        "endArrow": "triangle"
+      }
+    },
+    {
+      "type": "connector",
+      "connector": {
+        "from": "serviceA",
+        "to": "database",
+        "fromAnchor": "bottom",
+        "toAnchor": "top",
+        "lineColor": "#BBBFC4",
+        "lineWidth": 2,
+        "endArrow": "triangle"
+      }
+    },
+    {
+      "type": "connector",
+      "connector": {
+        "from": "serviceB",
+        "to": "database",
+        "fromAnchor": "bottom",
+        "toAnchor": "top",
+        "lineColor": "#BBBFC4",
+        "lineWidth": 2,
+        "endArrow": "triangle"
+      }
+    }
+  ]
+}

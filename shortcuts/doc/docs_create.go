@@ -44,7 +44,7 @@ var DocsCreate = common.Shortcut{
 		}
 
 		stripBlockIDs(data)
-		runtime.Out(data, nil)
+		runtime.OutRaw(data, nil)
 		return nil
 	},
 }

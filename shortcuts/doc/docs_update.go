@@ -105,7 +105,7 @@ var DocsUpdate = common.Shortcut{
 			return err
 		}
 
-		runtime.Out(data, nil)
+		runtime.OutRaw(data, nil)
 		return nil
 	},
 }

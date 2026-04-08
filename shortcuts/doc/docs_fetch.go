@@ -52,7 +52,7 @@ var DocsFetch = common.Shortcut{
 			return err
 		}
 
-		runtime.OutFormat(data, nil, func(w io.Writer) {
+		runtime.OutFormatRaw(data, nil, func(w io.Writer) {
 			if doc, ok := data["document"].(map[string]interface{}); ok {
 				if content, ok := doc["content"].(string); ok {
 					fmt.Fprintln(w, content)
