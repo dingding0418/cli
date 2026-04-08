@@ -16,6 +16,11 @@
 
 ## 命令
 
+> **关键约束：搜索关键词必须通过 `--query` 传递。**
+> 正确：`lark-cli docs +search --query "方案"`
+> 错误：`lark-cli docs +search 方案`
+> `+search` 不接受“搜索词位置参数”这种写法；如果把关键词直接跟在命令后面，不会进入 `query`，会变成空搜或返回不符合预期的结果。
+
 ```bash
 # 关键词搜索
 lark-cli docs +search --query "季度总结"
@@ -46,7 +51,7 @@ lark-cli docs +search --query "方案" --format json --page-token '<PAGE_TOKEN>'
 
 | 参数 | 必填 | 说明 |
 |------|------|------|
-| `--query <text>` | 否 | 搜索关键词。**支持高级 Boolean 语法**以提升搜索精度：<br>1. 使用空格表示 AND（如 `方案 设计`）。<br>2. 使用 `OR` 表示逻辑或（如 `方案 OR 草稿`）。<br>3. 使用 `-` 表示排除（如 `方案 -草稿`）。<br>4. 使用双引号 `""` 表示精确匹配短语。<br>5. 使用 `intitle:` 限定关键词出现在标题中（如 `intitle:总结` 或 `intitle:"季度 总结"`）。不传/空字符串表示空搜 |
+| `--query <text>` | 否 | 搜索关键词。**支持高级 Boolean 语法**以提升搜索精度：<br>1. 使用空格表示 AND（如 `方案 设计`）。<br>2. 使用 `OR` 表示逻辑或（如 `方案 OR 草稿`）。<br>3. 使用 `-` 表示排除（如 `方案 -草稿`）。<br>4. 使用双引号 `""` 表示精确匹配短语。<br>5. 使用 `intitle:` 限定关键词出现在标题中（如 `intitle:总结` 或 `intitle:"季度 总结"`）。不传/空字符串表示空搜。**凡是有关键词，都要显式通过 `--query` 传递，不要写成位置参数。** |
 | `--filter <json>` | 否 | JSON 对象，会同时应用到 `doc_filter` 与 `wiki_filter` |
 | `--page-size <n>` | 否 | 每页数量（默认 15，最大 20） |
 | `--page-token <token>` | 否 | 翻页标记（配合 `has_more` 使用） |
@@ -59,6 +64,7 @@ lark-cli docs +search --query "方案" --format json --page-token '<PAGE_TOKEN>'
 
 ## 决策规则
 
+- 参数传递：只要用户给了搜索关键词，就必须显式使用 `--query "<关键词>"`。不要生成 `lark-cli docs +search 方案`、`lark-cli docs +search xxx（搜索关键词）` 这种位置参数写法。
 - 查询语义：必须优先利用 --query 的高级语法（如 intitle:、""、-）将过滤逻辑下推给服务端。当用户要求“标题精确等于 X”时，直接使用 --query "intitle:\"X\""，严禁先进行模糊搜索再做客户端二次筛选。只有在遇到服务端语法无法覆盖的复杂本地比对场景时，才允许在客户端过滤，且比对前必须先去掉 title_highlighted 里的高亮标签。
 - 入口选择：用户说“找表格标题”“找名为 `X` 的电子表格”“搜某个报表”时，也默认走 `docs +search`。不要误用 `sheets +find` 做跨文件搜索。
 - 分页策略：默认只返回**第一页**，并说明 `has_more` / `page_token`。只有当用户明确要求“全部结果”“继续翻页”“全量扫描”“所有结果”“完整列表”时，才继续翻页。
