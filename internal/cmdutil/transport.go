@@ -6,9 +6,11 @@ package cmdutil
 import (
 	"context"
 	"net/http"
+	"os"
 	"time"
 
 	exttransport "github.com/larksuite/cli/extension/transport"
+	"github.com/larksuite/cli/internal/envvars"
 	"github.com/larksuite/cli/internal/util"
 )
 
@@ -66,10 +68,21 @@ type UserAgentTransport struct {
 func (t *UserAgentTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req = req.Clone(req.Context())
 	req.Header.Set(HeaderUserAgent, UserAgentValue())
+	setEnvHeader(req.Header, envvars.CliExtraHeaderKey, envvars.CliExtraHeaderValue)
+	setEnvHeader(req.Header, envvars.CliExtraHeaderKey2, envvars.CliExtraHeaderValue2)
 	if t.Base != nil {
 		return t.Base.RoundTrip(req)
 	}
 	return util.FallbackTransport().RoundTrip(req)
+}
+
+func setEnvHeader(header http.Header, keyEnv, valueEnv string) {
+	key := os.Getenv(keyEnv)
+	value := os.Getenv(valueEnv)
+	if key == "" || value == "" {
+		return
+	}
+	header.Set(key, value)
 }
 
 // SecurityHeaderTransport is an http.RoundTripper that injects CLI security

@@ -107,7 +107,7 @@ func (c *APIClient) DoSDKRequest(ctx context.Context, req *larkcore.ApiReq, as c
 	}
 
 	opts = append(opts, extraOpts...)
-	return c.SDK.Do(ctx, req, opts...)
+	return c.SDK.Do(ctx, withForcedOnlineContactBaseURL(req, extraOpts...), opts...)
 }
 
 // DoStream executes a streaming HTTP request against the Lark OpenAPI endpoint.
@@ -257,6 +257,33 @@ func buildStreamBody(body interface{}) (io.Reader, string, error) {
 func (c *APIClient) DoAPI(ctx context.Context, request RawApiRequest) (*larkcore.ApiResp, error) {
 	apiReq, extraOpts := c.buildApiReq(request)
 	return c.DoSDKRequest(ctx, apiReq, request.As, extraOpts...)
+}
+
+func withForcedOnlineContactBaseURL(req *larkcore.ApiReq, extraOpts ...larkcore.RequestOptionFunc) *larkcore.ApiReq {
+	if req == nil || !shouldForceOnlineContactBaseURL(req, extraOpts...) {
+		return req
+	}
+
+	cloned := *req
+	if strings.HasPrefix(cloned.ApiPath, "http://") || strings.HasPrefix(cloned.ApiPath, "https://") {
+		return &cloned
+	}
+	cloned.ApiPath = strings.TrimRight("https://open.feishu.cn", "/") + cloned.ApiPath
+	return &cloned
+}
+
+func shouldForceOnlineContactBaseURL(req *larkcore.ApiReq, extraOpts ...larkcore.RequestOptionFunc) bool {
+	if req != nil && strings.Contains(req.ApiPath, "/open-apis/contact/") {
+		return true
+	}
+
+	var option larkcore.RequestOption
+	for _, opt := range extraOpts {
+		if opt != nil {
+			opt(&option)
+		}
+	}
+	return strings.HasPrefix(option.Header.Get("X-Cli-Shortcut"), "contact:")
 }
 
 // CallAPI is a convenience wrapper: DoAPI + ParseJSONResponse.

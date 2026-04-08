@@ -3,6 +3,12 @@
 
 package core
 
+import (
+	"os"
+
+	"github.com/larksuite/cli/internal/envvars"
+)
+
 // LarkBrand represents the Lark platform brand.
 // "feishu" targets China-mainland, "lark" targets international.
 // Any other string is treated as a custom base URL.
@@ -40,9 +46,9 @@ func ResolveEndpoints(brand LarkBrand) Endpoints {
 		}
 	default:
 		return Endpoints{
-			Open:     "https://open.feishu.cn",
-			Accounts: "https://accounts.feishu.cn",
-			MCP:      "https://mcp.feishu.cn",
+			Open:     getenvOrDefault(envvars.CliFeishuOpenBaseURL, "https://open.feishu.cn"),
+			Accounts: getenvOrDefault(envvars.CliFeishuAccountsBaseURL, "https://accounts.feishu.cn"),
+			MCP:      getenvOrDefault(envvars.CliFeishuMCPBaseURL, "https://mcp.feishu.cn"),
 		}
 	}
 }
@@ -50,4 +56,11 @@ func ResolveEndpoints(brand LarkBrand) Endpoints {
 // ResolveOpenBaseURL returns the Open API base URL for the given brand.
 func ResolveOpenBaseURL(brand LarkBrand) string {
 	return ResolveEndpoints(brand).Open
+}
+
+func getenvOrDefault(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
 }
